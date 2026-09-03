@@ -7,13 +7,18 @@ export function useMemberPhotoUrl(path: string | null | undefined) {
   return useQuery({
     queryKey: ["member-photo", path],
     enabled: !!path,
-    staleTime: 1000 * 60 * 50, // signed URL lasts 60 min
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
     queryFn: async () => {
-      const { data, error } = await supabase.storage
-        .from(BUCKET)
-        .createSignedUrl(path!, 60 * 60);
-      if (error) throw error;
-      return data.signedUrl;
+      if (!path) return null;
+      if (path.startsWith("data:") || path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) {
+        return path;
+      }
+      try {
+        const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60 * 60 * 24);
+        return data?.signedUrl || path;
+      } catch {
+        return path;
+      }
     },
   });
 }
@@ -40,10 +45,13 @@ export function MemberAvatar({
   const { data: url } = useMemberPhotoUrl(photoUrl);
   const initial = (name?.trim().charAt(0) || "?").toUpperCase();
   const base = `${SIZE[size]} shrink-0 overflow-hidden rounded-full bg-accent text-accent-foreground grid place-items-center font-semibold ${className}`;
-  if (url) {
+
+  const finalSrc = url || (photoUrl && (photoUrl.startsWith("data:") || photoUrl.startsWith("http")) ? photoUrl : null);
+
+  if (finalSrc) {
     return (
       <div className={base}>
-        <img src={url} alt={name} className="h-full w-full object-cover" loading="lazy" />
+        <img src={finalSrc} alt={name} className="h-full w-full object-cover" loading="lazy" />
       </div>
     );
   }

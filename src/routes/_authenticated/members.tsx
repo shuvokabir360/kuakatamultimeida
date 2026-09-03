@@ -16,6 +16,7 @@ import { MemberAccounts } from "@/components/member-accounts";
 import { MemberMonthlyHistory } from "@/components/member-monthly-history";
 import { BonusSection } from "@/components/bonus-section";
 import { MemberHistory } from "@/components/member-history";
+import { PhotoCropDialog } from "@/components/photo-crop-dialog";
 
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { PhoneInputBD } from "@/components/phone-input-bd";
@@ -55,9 +56,6 @@ function MembersPage() {
 
   const remove = useMutation({
     mutationFn: async (m: Member) => {
-      if (m.photo_url) {
-        await supabase.storage.from(MEMBER_PHOTO_BUCKET).remove([m.photo_url]);
-      }
       const { error } = await supabase.from("members").delete().eq("id", m.id);
       if (error) throw error;
     },
@@ -96,25 +94,14 @@ function MembersPage() {
   });
 
   const changePhoto = useMutation({
-    mutationFn: async ({ member, file }: { member: Member; file: File }) => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error("লগইন প্রয়োজন");
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${u.user.id}/${member.id}-${Date.now()}.${ext}`;
-      const up = await supabase.storage.from(MEMBER_PHOTO_BUCKET).upload(path, file, {
-        contentType: file.type,
-        upsert: false,
-      });
-      if (up.error) throw up.error;
-      if (member.photo_url) {
-        await supabase.storage.from(MEMBER_PHOTO_BUCKET).remove([member.photo_url]);
-      }
-      const { error } = await supabase.from("members").update({ photo_url: path }).eq("id", member.id);
+    mutationFn: async ({ member, dataUrl }: { member: Member; dataUrl: string }) => {
+      const { error } = await supabase.from("members").update({ photo_url: dataUrl }).eq("id", member.id);
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["members"] });
-      toast.success("ছবি আপডেট হয়েছে");
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("ছবি সফলভাবে আপডেট হয়েছে");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -156,12 +143,10 @@ function MembersPage() {
               onRemove={() => remove.mutate(m)}
               onAddMonthly={() => addMonthly.mutate(m)}
               addMonthlyPending={addMonthly.isPending}
-              onChangePhoto={(file) => changePhoto.mutate({ member: m, file })}
+              onChangePhoto={(dataUrl) => changePhoto.mutate({ member: m, dataUrl })}
             />
           ))}
       </div>
-
-
     </div>
   );
 }
@@ -179,7 +164,7 @@ function MemberDetailDialog({
   onRemove: () => void;
   onAddMonthly: () => void;
   addMonthlyPending: boolean;
-  onChangePhoto: (file: File) => void;
+  onChangePhoto: (dataUrl: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -249,11 +234,9 @@ function MemberDetailDialog({
 
           <MemberHistory memberId={m.id} memberRate={m.rate} />
 
-
           <MemberMonthlyHistory member={m} />
 
           <QrProfileInline memberId={m.id} memberName={m.name} />
-
 
           <div className="flex gap-2 pt-1">
             <EditMemberDialog member={m} fullWidth />
@@ -332,31 +315,46 @@ function MonthlySalaryButton({ member, onAdd, pending }: { member: Member; onAdd
   );
 }
 
-function PhotoPicker({ member, onPick }: { member: Member; onPick: (file: File) => void }) {
+function PhotoPicker({ member, onPick }: { member: Member; onPick: (dataUrl: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={() => ref.current?.click()}
-      className="relative shrink-0"
-      aria-label="ছবি পরিবর্তন"
-    >
-      <MemberAvatar name={member.name} photoUrl={member.photo_url} size="lg" />
-      <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground shadow ring-2 ring-card">
-        <Camera className="h-3 w-3" />
-      </span>
-      <input
-        ref={ref}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) onPick(f);
-          e.target.value = "";
-        }}
+    <>
+      <button
+        type="button"
+        onClick={() => ref.current?.click()}
+        className="relative shrink-0"
+        aria-label="ছবি পরিবর্তন"
+      >
+        <MemberAvatar name={member.name} photoUrl={member.photo_url} size="xl" />
+        <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground shadow ring-2 ring-card hover:scale-105 transition">
+          <Camera className="h-4 w-4" />
+        </span>
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              setCropFile(f);
+              setCropOpen(true);
+            }
+            e.target.value = "";
+          }}
+        />
+      </button>
+
+      <PhotoCropDialog
+        open={cropOpen}
+        onOpenChange={setCropOpen}
+        file={cropFile}
+        onCropComplete={(dataUrl) => onPick(dataUrl)}
       />
-    </button>
+    </>
   );
 }
 
@@ -368,10 +366,10 @@ function AddMemberDialog() {
   const [role, setRole] = useState("");
   const [type, setType] = useState<"daily" | "monthly">("daily");
   const [rate, setRate] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const previewUrl = file ? URL.createObjectURL(file) : null;
 
   const create = useMutation({
     mutationFn: async () => {
@@ -384,27 +382,16 @@ function AddMemberDialog() {
         role: role.trim() || null,
         type,
         rate: Number(rate) || 0,
-      }).select("id").single();
+        photo_url: photoDataUrl || null,
+      });
       if (ins.error) throw ins.error;
-
-      if (file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${u.user.id}/${ins.data.id}-${Date.now()}.${ext}`;
-        const up = await supabase.storage.from(MEMBER_PHOTO_BUCKET).upload(path, file, {
-          contentType: file.type,
-          upsert: false,
-        });
-        if (up.error) throw up.error;
-        const upd = await supabase.from("members").update({ photo_url: path }).eq("id", ins.data.id);
-        if (upd.error) throw upd.error;
-      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["members"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
-      toast.success("সদস্য যোগ হয়েছে");
+      toast.success("সদস্য সফলভাবে যোগ হয়েছে");
       setOpen(false);
-      setName(""); setPhone(""); setRole(""); setType("daily"); setRate(""); setFile(null);
+      setName(""); setPhone(""); setRole(""); setType("daily"); setRate(""); setPhotoDataUrl(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -424,9 +411,9 @@ function AddMemberDialog() {
               className="relative shrink-0"
               aria-label="ছবি যুক্ত করুন"
             >
-              <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-accent text-accent-foreground">
-                {previewUrl ? (
-                  <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+              <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-accent text-accent-foreground border-2 border-primary/20">
+                {photoDataUrl ? (
+                  <img src={photoDataUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <UserIcon className="h-7 w-7 text-muted-foreground" />
                 )}
@@ -439,11 +426,18 @@ function AddMemberDialog() {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setCropFile(f);
+                    setCropOpen(true);
+                  }
+                  e.target.value = "";
+                }}
               />
             </button>
             <div className="text-xs text-muted-foreground">
-              {file ? file.name : "ছবি যুক্ত করতে চাপুন (ঐচ্ছিক)"}
+              {photoDataUrl ? "ছবি নির্বাচন করা হয়েছে (পরিবর্তন করতে চাপুন)" : "ছবি যুক্ত ও ক্রপ করতে চাপুন (ঐচ্ছিক)"}
             </div>
           </div>
           <div className="space-y-1.5"><Label>নাম *</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
@@ -469,6 +463,13 @@ function AddMemberDialog() {
         <DialogFooter>
           <Button onClick={() => create.mutate()} disabled={!name.trim() || create.isPending} className="w-full">সংরক্ষণ করুন</Button>
         </DialogFooter>
+
+        <PhotoCropDialog
+          open={cropOpen}
+          onOpenChange={setCropOpen}
+          file={cropFile}
+          onCropComplete={(dataUrl) => setPhotoDataUrl(dataUrl)}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -479,24 +480,15 @@ function EditMemberDialog({ member, fullWidth = false }: { member: Member; fullW
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {fullWidth ? (
-          <Button variant="outline" className="flex-1">
-            <Pencil className="mr-1.5 h-4 w-4" /> এডিট
-          </Button>
-        ) : (
-          <button
-            className="rounded-lg p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-            aria-label="এডিট করুন"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-        )}
+        <Button variant="outline" className={fullWidth ? "flex-1" : ""}>
+          <Pencil className="mr-1.5 h-4 w-4" /> এডিট
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>প্রফাইল এডিট</DialogTitle></DialogHeader>
-        <div className="space-y-2">
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>{member.name} — তথ্য এডিট</DialogTitle></DialogHeader>
+        <div className="space-y-2 py-1">
           <EditFieldRow label="নাম" value={member.name} field="name" memberId={member.id} />
-          <EditFieldRow label="পদবী" value={member.role ?? "—"} field="role" memberId={member.id} placeholder="যেমন: হেল্পার" />
+          <EditFieldRow label="পদবী" value={member.role || "—"} field="role" memberId={member.id} placeholder="যেমন: হেল্পার" />
           <EditFieldRow label="মোবাইল" value={member.phone ? toBn(member.phone) : "—"} field="phone" memberId={member.id} />
           <EditTypeRow member={member} />
           <EditRateRow member={member} />
