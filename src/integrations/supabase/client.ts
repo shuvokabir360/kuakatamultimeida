@@ -22,7 +22,7 @@ const SEED_DATA: Record<string, any[]> = {
     { id: "km_ziaur", _id: "km_ziaur", name: "Ziaur Rahman", role: "Editor & Cameraman", type: "monthly", rate: 0, phone: "" },
     { id: "km_porosh", _id: "km_porosh", name: "Porosh Moni", role: "Editor & Cameraman", type: "monthly", rate: 0, phone: "01610400509" },
     { id: "km_arif", _id: "km_arif", name: "Arif Apon", role: "Actor", type: "daily", rate: 0, phone: "" },
-    { id: "km_sagar", _id: "km_sagar", name: "Masud Pervez Sagar", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_sagar", _id: "km_sagar", name: "Masud Pervez Sagar", role: "Actor", type: "daily", rate: 3500, phone: "01746772754" },
     { id: "km_almas", _id: "km_almas", name: "SM Almas", role: "Actor & Director", type: "daily", rate: 0, phone: "" },
     { id: "km_abir", _id: "km_abir", name: "Abubakar Abir", role: "Ass. Director", type: "monthly", rate: 0, phone: "01713953527" },
   ],
