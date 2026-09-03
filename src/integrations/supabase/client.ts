@@ -6,39 +6,25 @@ const API_URL = typeof window !== 'undefined'
 // Initial MongoDB Atlas persistent seed dataset
 const SEED_DATA: Record<string, any[]> = {
   members: [
-    {
-      id: "6a96622b61442a29257b89c0",
-      _id: "6a96622b61442a29257b89c0",
-      name: "Kabir Hossen Shuvo",
-      role: "CEO",
-      phone: "01713953527",
-      type: "monthly",
-      rate: 0,
-      photo_url: null,
-      created_at: "2026-09-02T18:00:00.000Z"
-    },
-    {
-      id: "6a965a6961442a29257b4821",
-      _id: "6a965a6961442a29257b4821",
-      name: "Abubakar",
-      role: "actor",
-      phone: "01713953527",
-      type: "daily",
-      rate: 0,
-      photo_url: null,
-      created_at: "2026-09-02T17:00:00.000Z"
-    },
-    {
-      id: "6a965a7d61442a29257b482b",
-      _id: "6a965a7d61442a29257b482b",
-      name: "porosh",
-      role: "production",
-      phone: "01610400509",
-      type: "daily",
-      rate: 0,
-      photo_url: null,
-      created_at: "2026-09-02T17:30:00.000Z"
-    }
+    { id: "km_shuvo", _id: "km_shuvo", name: "Kabir Hossen Shuvo", role: "CEO", type: "monthly", rate: 0, phone: "01713953527" },
+    { id: "km_badal", _id: "km_badal", name: "Badal", role: "Production", type: "daily", rate: 0, phone: "" },
+    { id: "km_noyon", _id: "km_noyon", name: "Noyon Moni", role: "Production", type: "daily", rate: 0, phone: "" },
+    { id: "km_jafor", _id: "km_jafor", name: "Jafor Howlader", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_milon", _id: "km_milon", name: "Abu Hasan Milon", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_sojib", _id: "km_sojib", name: "Sojib", role: "Production", type: "daily", rate: 0, phone: "" },
+    { id: "km_bayzid", _id: "km_bayzid", name: "Bayzid", role: "Production", type: "daily", rate: 0, phone: "" },
+    { id: "km_toha", _id: "km_toha", name: "Toha", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_tamanna", _id: "km_tamanna", name: "Tamanna", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_rimi", _id: "km_rimi", name: "Rimi", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_jisan", _id: "km_jisan", name: "Jisan Musulli", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_emon", _id: "km_emon", name: "Emon Molla", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_siraj", _id: "km_siraj", name: "Siraj Musulli", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_ziaur", _id: "km_ziaur", name: "Ziaur Rahman", role: "Editor & Cameraman", type: "monthly", rate: 0, phone: "" },
+    { id: "km_porosh", _id: "km_porosh", name: "Porosh Moni", role: "Editor & Cameraman", type: "monthly", rate: 0, phone: "01610400509" },
+    { id: "km_arif", _id: "km_arif", name: "Arif Apon", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_sagar", _id: "km_sagar", name: "Masud Pervez Sagar", role: "Actor", type: "daily", rate: 0, phone: "" },
+    { id: "km_almas", _id: "km_almas", name: "SM Almas", role: "Actor & Director", type: "daily", rate: 0, phone: "" },
+    { id: "km_abir", _id: "km_abir", name: "Abubakar Abir", role: "Ass. Director", type: "monthly", rate: 0, phone: "01713953527" },
   ],
   channels: [
     { id: "6a8c4d15ad70648be9d4147b", _id: "6a8c4d15ad70648be9d4147b", name: "Kuakata Multimedia", created_at: new Date().toISOString() },
