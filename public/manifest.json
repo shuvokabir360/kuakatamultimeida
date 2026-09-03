@@ -1,0 +1,26 @@
+{
+  "name": "Kuakata Multimedia Finance",
+  "short_name": "KM Finance",
+  "description": "কুয়াকাটা মাল্টিমিডিয়া — টিম ম্যানেজার, হাজিরা, শুটিং ও আর্থিক হিসাব",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
