@@ -1,7 +1,63 @@
-// MongoDB + Node.js Express Adapter with Offline-First Local Cache & Background Sync
+// MongoDB Atlas + Resilient Offline-First Client Data Layer
 const API_URL = typeof window !== 'undefined'
-  ? ((import.meta as any).env?.VITE_API_URL || 'https://kuakatamultimedia.com/api')
-  : (process.env.VITE_API_URL || 'https://kuakatamultimedia.com/api');
+  ? ((import.meta as any).env?.VITE_API_URL || '/api')
+  : (process.env.VITE_API_URL || '/api');
+
+// Initial MongoDB Atlas persistent seed dataset
+const SEED_DATA: Record<string, any[]> = {
+  members: [
+    {
+      id: "6a96622b61442a29257b89c0",
+      _id: "6a96622b61442a29257b89c0",
+      name: "Kabir Hossen Shuvo",
+      role: "CEO",
+      phone: "01713953527",
+      type: "monthly",
+      rate: 0,
+      photo_url: null,
+      created_at: "2026-09-02T18:00:00.000Z"
+    },
+    {
+      id: "6a965a6961442a29257b4821",
+      _id: "6a965a6961442a29257b4821",
+      name: "Abubakar",
+      role: "actor",
+      phone: "01713953527",
+      type: "daily",
+      rate: 0,
+      photo_url: null,
+      created_at: "2026-09-02T17:00:00.000Z"
+    },
+    {
+      id: "6a965a7d61442a29257b482b",
+      _id: "6a965a7d61442a29257b482b",
+      name: "porosh",
+      role: "production",
+      phone: "01610400509",
+      type: "daily",
+      rate: 0,
+      photo_url: null,
+      created_at: "2026-09-02T17:30:00.000Z"
+    }
+  ],
+  channels: [
+    { id: "6a8c4d15ad70648be9d4147b", _id: "6a8c4d15ad70648be9d4147b", name: "Kuakata Multimedia", created_at: new Date().toISOString() },
+    { id: "6a9663d061442a29257ba029", _id: "6a9663d061442a29257ba029", name: "Malbro Entertainment", created_at: new Date().toISOString() },
+    { id: "6a9663e161442a29257ba033", _id: "6a9663e161442a29257ba033", name: "Projapoti Multimedia", created_at: new Date().toISOString() },
+    { id: "6a9663ed61442a29257ba03d", _id: "6a9663ed61442a29257ba03d", name: "Mehedi Multimedia", created_at: new Date().toISOString() }
+  ],
+  directors: [
+    { id: "6a8c4db9ad70648be9d414cc", _id: "6a8c4db9ad70648be9d414cc", name: "Saddam Mal", phone: "", created_at: new Date().toISOString() },
+    { id: "6a964f4e61442a29257b3160", _id: "6a964f4e61442a29257b3160", name: "SM ALMAS", phone: "", created_at: new Date().toISOString() }
+  ],
+  attendance: [],
+  payments: [],
+  bonuses: [],
+  monthly_salaries: [],
+  shootings: [],
+  shooting_expenses: [],
+  client_payments: [],
+};
 
 const getStoredUser = () => {
   if (typeof window === 'undefined') return null;
@@ -24,14 +80,25 @@ const notifyAuthChange = (event: string, session: any) => {
   });
 };
 
-// Local storage helper for resilient data persistence
+// Local storage helper with automatic persistent fallback to seed dataset
 const getLocalTable = (table: string): any[] => {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return SEED_DATA[table] || [];
   try {
     const raw = localStorage.getItem(`km_tbl_${table}`);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch (_) {}
-  return [];
+
+  // If table is empty in storage, initialize with MongoDB seed data
+  const seed = SEED_DATA[table] || [];
+  if (seed.length > 0) {
+    try {
+      localStorage.setItem(`km_tbl_${table}`, JSON.stringify(seed));
+    } catch (_) {}
+  }
+  return [...seed];
 };
 
 const setLocalTable = (table: string, items: any[]) => {
@@ -240,7 +307,6 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
 
       setLocalTable(this.table, updatedList);
 
-      // Background API sync
       fetch(`${API_URL}/${this.table}/${encodeURIComponent(rawTargetId)}`, {
         method: 'PUT',
         headers: {
@@ -303,13 +369,13 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
 
       if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const serverData = await res.json().catch(() => []);
-        if (Array.isArray(serverData)) {
+        if (Array.isArray(serverData) && serverData.length > 0) {
           data = serverData;
           setLocalTable(this.table, serverData);
         }
       }
     } catch (_) {
-      // Fallback to local cache
+      // Fallback to local table
     }
 
     if (!data || data.length === 0) {
@@ -569,7 +635,6 @@ export const supabase: any = {
     from(_bucket: string) {
       return {
         async upload(_pathName: string, file: File, _options?: any) {
-          // Store image as base64 data URL for instant zero-server persistence
           return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = () => {
