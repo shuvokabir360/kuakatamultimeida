@@ -1,9 +1,20 @@
-// MongoDB Atlas + Resilient Offline-First Client Data Layer
-const API_URL = typeof window !== 'undefined'
-  ? ((import.meta as any).env?.VITE_API_URL || '/api')
-  : (process.env.VITE_API_URL || '/api');
+// Direct MongoDB Atlas Sync + Resilient Offline-First Client Data Layer
 
-// Initial MongoDB Atlas persistent seed dataset
+const syncToMongo = async (payload: any) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return await res.json().catch(() => null);
+  } catch (err) {
+    console.warn('Direct MongoDB Atlas edge sync notice:', err);
+    return null;
+  }
+};
+
 const SEED_DATA: Record<string, any[]> = {
   members: [
     { id: "km_shuvo", _id: "km_shuvo", name: "Kabir Hossen Shuvo", role: "CEO", type: "monthly", rate: 0, phone: "01713953527" },
@@ -27,14 +38,14 @@ const SEED_DATA: Record<string, any[]> = {
     { id: "km_abir", _id: "km_abir", name: "Abubakar Abir", role: "Ass. Director", type: "monthly", rate: 0, phone: "01713953527" },
   ],
   channels: [
-    { id: "6a8c4d15ad70648be9d4147b", _id: "6a8c4d15ad70648be9d4147b", name: "Kuakata Multimedia", created_at: new Date().toISOString() },
-    { id: "6a9663d061442a29257ba029", _id: "6a9663d061442a29257ba029", name: "Malbro Entertainment", created_at: new Date().toISOString() },
-    { id: "6a9663e161442a29257ba033", _id: "6a9663e161442a29257ba033", name: "Projapoti Multimedia", created_at: new Date().toISOString() },
-    { id: "6a9663ed61442a29257ba03d", _id: "6a9663ed61442a29257ba03d", name: "Mehedi Multimedia", created_at: new Date().toISOString() }
+    { id: "6a8c4d15ad70648be9d4147b", _id: "6a8c4d15ad70648be9d4147b", name: "Kuakata Multimedia" },
+    { id: "6a9663d061442a29257ba029", _id: "6a9663d061442a29257ba029", name: "Malbro Entertainment" },
+    { id: "6a9663e161442a29257ba033", _id: "6a9663e161442a29257ba033", name: "Projapoti Multimedia" },
+    { id: "6a9663ed61442a29257ba03d", _id: "6a9663ed61442a29257ba03d", name: "Mehedi Multimedia" }
   ],
   directors: [
-    { id: "6a8c4db9ad70648be9d414cc", _id: "6a8c4db9ad70648be9d414cc", name: "Saddam Mal", phone: "", created_at: new Date().toISOString() },
-    { id: "6a964f4e61442a29257b3160", _id: "6a964f4e61442a29257b3160", name: "SM ALMAS", phone: "", created_at: new Date().toISOString() }
+    { id: "6a8c4db9ad70648be9d414cc", _id: "6a8c4db9ad70648be9d414cc", name: "Saddam Mal", phone: "" },
+    { id: "6a964f4e61442a29257b3160", _id: "6a964f4e61442a29257b3160", name: "SM ALMAS", phone: "" }
   ],
   attendance: [],
   payments: [],
@@ -66,7 +77,6 @@ const notifyAuthChange = (event: string, session: any) => {
   });
 };
 
-// Local storage helper with automatic persistent fallback to seed dataset
 const getLocalTable = (table: string): any[] => {
   if (typeof window === 'undefined') return SEED_DATA[table] || [];
   try {
@@ -77,7 +87,6 @@ const getLocalTable = (table: string): any[] => {
     }
   } catch (_) {}
 
-  // If table is empty in storage, initialize with MongoDB seed data
   const seed = SEED_DATA[table] || [];
   if (seed.length > 0) {
     try {
@@ -92,10 +101,6 @@ const setLocalTable = (table: string, items: any[]) => {
   try {
     localStorage.setItem(`km_tbl_${table}`, JSON.stringify(items));
   } catch (_) {}
-};
-
-const generateId = () => {
-  return 'km_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
 };
 
 class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; error: any }> {
@@ -209,17 +214,6 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
   }
 
   private async execute(): Promise<{ data: any; error: any }> {
-    const q = new URLSearchParams();
-    if (this.filters.from) q.append('from', this.filters.from);
-    if (this.filters.to) q.append('to', this.filters.to);
-    if (this.filters.date) q.append('date', this.filters.date);
-    if (this.filters.member_id) q.append('member_id', this.filters.member_id);
-    if (this.filters.shooting_id) q.append('shooting_id', this.filters.shooting_id);
-    if (this.filters.channel) q.append('channel', this.filters.channel);
-    if (this.filters.month) q.append('month', this.filters.month);
-
-    const qs = q.toString() ? `?${q.toString()}` : '';
-
     // --- 1. INSERT ---
     if (this.action === 'insert') {
       const items = Array.isArray(this.payload) ? this.payload : [this.payload];
@@ -228,44 +222,26 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
 
       for (const item of items) {
         const fullItem = {
-          id: item.id || item._id || generateId(),
-          _id: item._id || item.id || generateId(),
+          id: item.id || item._id || ('km_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8)),
+          _id: item._id || item.id || ('km_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8)),
           createdAt: item.createdAt || new Date().toISOString(),
           created_at: item.created_at || new Date().toISOString(),
           ...item,
         };
 
-        // Update local storage immediately (instant UI feedback)
         localList.unshift(fullItem);
         insertedItems.push(fullItem);
-
-        // Background sync to backend API if available
-        let endpoint = '';
-        switch (this.table) {
-          case 'members': endpoint = '/members'; break;
-          case 'attendance': endpoint = '/attendance'; break;
-          case 'payments': endpoint = '/payments'; break;
-          case 'bonuses': endpoint = '/payments/bonuses'; break;
-          case 'monthly_salaries': endpoint = '/payments/salaries'; break;
-          case 'shootings': endpoint = '/shootings'; break;
-          case 'shooting_expenses': endpoint = `/shootings/${item.shooting_id || ''}/expenses`; break;
-          case 'channels': endpoint = '/clients/channels'; break;
-          case 'directors': endpoint = '/clients/directors'; break;
-          case 'client_payments': endpoint = '/clients/payments'; break;
-          default: endpoint = `/${this.table}`;
-        }
-
-        fetch(`${API_URL}${endpoint}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${getStoredToken()}`,
-          },
-          body: JSON.stringify(fullItem),
-        }).catch(() => {});
       }
 
       setLocalTable(this.table, localList);
+
+      // Direct edge sync to MongoDB Atlas
+      syncToMongo({
+        action: 'insert',
+        table: this.table,
+        data: insertedItems,
+      });
+
       const out = Array.isArray(this.payload) ? insertedItems : (this.isSingle ? insertedItems[0] : insertedItems);
       return { data: out, error: null };
     }
@@ -293,14 +269,13 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
 
       setLocalTable(this.table, updatedList);
 
-      fetch(`${API_URL}/${this.table}/${encodeURIComponent(rawTargetId)}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getStoredToken()}`,
-        },
-        body: JSON.stringify(this.payload),
-      }).catch(() => {});
+      // Direct edge sync to MongoDB Atlas
+      syncToMongo({
+        action: 'update',
+        table: this.table,
+        data: this.payload,
+        filters: this.filters,
+      });
 
       return { data: updatedItem || this.payload, error: null };
     }
@@ -318,74 +293,20 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
 
       setLocalTable(this.table, filteredList);
 
-      fetch(`${API_URL}/${this.table}/${encodeURIComponent(rawTargetId)}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${getStoredToken()}` },
-      }).catch(() => {});
+      // Direct edge sync to MongoDB Atlas
+      syncToMongo({
+        action: 'delete',
+        table: this.table,
+        filters: this.filters,
+      });
 
       return { data: { success: true }, error: null };
     }
 
     // --- 4. SELECT ---
-    let endpoint = '';
-    switch (this.table) {
-      case 'members': endpoint = `/members${qs}`; break;
-      case 'attendance': endpoint = `/attendance${qs}`; break;
-      case 'payments': endpoint = `/payments${qs}`; break;
-      case 'bonuses': endpoint = `/payments/bonuses${qs}`; break;
-      case 'monthly_salaries': endpoint = `/payments/salaries${qs}`; break;
-      case 'shootings': endpoint = `/shootings${qs}`; break;
-      case 'shooting_expenses':
-        endpoint = this.filters.shooting_id ? `/shootings/${this.filters.shooting_id}/expenses` : `/shootings`;
-        break;
-      case 'channels': endpoint = `/clients/channels${qs}`; break;
-      case 'directors': endpoint = `/clients/directors${qs}`; break;
-      case 'client_payments': endpoint = `/clients/payments${qs}`; break;
-      default: endpoint = `/${this.table}${qs}`;
-    }
-
-    let data: any[] = [];
-    try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getStoredToken()}`,
-        },
-      });
-
-      if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-        const serverData = await res.json().catch(() => []);
-        if (Array.isArray(serverData) && serverData.length > 0) {
-          data = serverData;
-          setLocalTable(this.table, serverData);
-        }
-      }
-    } catch (_) {
-      // Fallback to local table
-    }
-
-    if (!data || data.length === 0) {
-      data = getLocalTable(this.table);
-    }
+    let data = [...getLocalTable(this.table)];
 
     if (Array.isArray(data)) {
-      data = data.map((d: any) => {
-        if (!d) return d;
-        const item = { ...d };
-        if (item._id && !item.id) item.id = String(item._id);
-        if (item.member_id && typeof item.member_id === 'object') {
-          item.members = item.member_id;
-          item.member = item.member_id;
-          item.member_id = String(item.member_id._id || item.member_id.id || '');
-        }
-        if (item.shooting_id && typeof item.shooting_id === 'object') {
-          item.shootings = item.shooting_id;
-          item.shooting = item.shooting_id;
-          item.shooting_id = String(item.shooting_id._id || item.shooting_id.id || '');
-        }
-        return item;
-      });
-
       if (this.filters.present !== undefined) {
         data = data.filter((d: any) => d.present === this.filters.present);
       }
@@ -427,63 +348,9 @@ export const supabase: any = {
   },
 
   async rpc(funcName: string, params: Record<string, any> = {}) {
-    try {
-      if (funcName === 'has_role') {
-        return { data: true, error: null };
-      }
-
-      if (funcName === 'member_balance') {
-        const id = params._member_id || params.memberId;
-        try {
-          const res = await fetch(`${API_URL}/members/${id}/balance`, {
-            headers: { Authorization: `Bearer ${getStoredToken()}` },
-          });
-          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-            const json = await res.json().catch(() => ({}));
-            return { data: json?.balance || 0, error: null };
-          }
-        } catch (_) {}
-
-        // Fallback local balance calculation
-        const payments = getLocalTable('payments').filter((p: any) => String(p.member_id || '') === String(id));
-        const totalPaid = payments.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
-        return { data: -totalPaid, error: null };
-      }
-
-      if (funcName === 'shooting_summary') {
-        const id = params._shooting_id || params.shootingId;
-        try {
-          const res = await fetch(`${API_URL}/shootings/${id}/summary`, {
-            headers: { Authorization: `Bearer ${getStoredToken()}` },
-          });
-          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-            const json = await res.json().catch(() => ({}));
-            return { data: [json], error: null };
-          }
-        } catch (_) {}
-
-        const expenses = getLocalTable('shooting_expenses').filter((e: any) => String(e.shooting_id || '') === String(id));
-        const totalCost = expenses.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
-        return { data: [{ total_cost: totalCost }], error: null };
-      }
-
-      if (funcName === 'client_channel_summary') {
-        try {
-          const res = await fetch(`${API_URL}/clients/channel-summary`, {
-            headers: { Authorization: `Bearer ${getStoredToken()}` },
-          });
-          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-            const json = await res.json().catch(() => []);
-            return { data: json, error: null };
-          }
-        } catch (_) {}
-        return { data: [], error: null };
-      }
-
-      return { data: null, error: null };
-    } catch {
-      return { data: null, error: null };
-    }
+    if (funcName === 'has_role') return { data: true, error: null };
+    if (funcName === 'member_balance') return { data: 0, error: null };
+    return { data: null, error: null };
   },
 
   auth: {
@@ -508,7 +375,6 @@ export const supabase: any = {
       const loginId = (email || '').trim().toLowerCase();
       const plainPass = password || '';
 
-      // Direct instant fallback for default admin credentials
       if ((loginId === 'adminkm' || loginId === 'adminkm@kuakatamedia.com') && plainPass === '01747729757@SK') {
         const user = {
           id: '6a8c467b1d89864c9c8e2279',
@@ -528,40 +394,7 @@ export const supabase: any = {
         return { data: { user, session }, error: null };
       }
 
-      try {
-        const res = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: email, email, password: plainPass }),
-        });
-
-        let data: any = {};
-        if (res.headers.get('content-type')?.includes('application/json')) {
-          data = await res.json().catch(() => ({}));
-        }
-
-        if (!res.ok) {
-          return { data: null, error: { message: data.error || 'লগইন ব্যর্থ হয়েছে (আইডি অথবা পাসওয়ার্ড ভুল)' } };
-        }
-
-        const user = data.user;
-        const token = data.token;
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('km_token', token);
-          localStorage.setItem('km_user', JSON.stringify(user));
-        }
-
-        const session = { user, access_token: token };
-        notifyAuthChange('SIGNED_IN', session);
-
-        return { data: { user, session }, error: null };
-      } catch (err: any) {
-        const msg = err?.message === 'Failed to fetch'
-          ? 'সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।'
-          : (err?.message || 'লগইন সার্ভার এরর');
-        return { data: null, error: { message: msg } };
-      }
+      return { data: null, error: { message: 'লগইন ব্যর্থ হয়েছে (আইডি অথবা পাসওয়ার্ড ভুল)' } };
     },
 
     async signInWithOtp({ email }: { email: string; options?: any }) {
