@@ -1,7 +1,7 @@
 // MongoDB + Node.js Express Adapter replacing Supabase completely
 const API_URL = typeof window !== 'undefined'
-  ? ((import.meta as any).env?.VITE_API_URL || '/api')
-  : (process.env.VITE_API_URL || 'http://127.0.0.1:5000/api');
+  ? ((import.meta as any).env?.VITE_API_URL || 'https://kuakatamultimedia.com/api')
+  : (process.env.VITE_API_URL || 'https://kuakatamultimedia.com/api');
 
 
 const getStoredUser = () => {
@@ -171,21 +171,27 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
             default: endpoint = `/${this.table}`;
           }
 
-          const res = await fetch(`${API_URL}${endpoint}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${getStoredToken()}`,
-            },
-            body: JSON.stringify(item),
-          });
+          try {
+            const res = await fetch(`${API_URL}${endpoint}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${getStoredToken()}`,
+              },
+              body: JSON.stringify(item),
+            });
 
-          if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            return { data: null, error: { message: err.error || res.statusText, code: 'INSERT_ERROR' } };
+            let resData: any = {};
+            if (res.headers.get('content-type')?.includes('application/json')) {
+              resData = await res.json().catch(() => ({}));
+            }
+            if (!res.ok) {
+              return { data: null, error: { message: resData.error || res.statusText, code: 'INSERT_ERROR' } };
+            }
+            results.push(resData);
+          } catch (e: any) {
+            return { data: null, error: { message: e?.message || 'Insert failed', code: 'INSERT_ERROR' } };
           }
-          const resData = await res.json();
-          results.push(resData);
         }
 
         const out = Array.isArray(this.payload) ? results : (this.isSingle ? results[0] : results);
@@ -198,19 +204,20 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
         const isHexId = /^[0-9a-fA-F]{24}$/.test(String(rawTargetId));
         let method = 'PUT';
         let endpoint = '';
-
-        const bodyData = Array.isArray(this.payload) ? this.payload : { ...this.payload };
-        if (!Array.isArray(bodyData) && this.filters.name && !bodyData.name) {
-          bodyData.name = this.filters.name;
-        }
+        let bodyData = this.payload;
 
         switch (this.table) {
           case 'members':
             endpoint = `/members/${encodeURIComponent(rawTargetId)}`;
             break;
           case 'attendance':
-            endpoint = '/attendance';
-            method = 'POST';
+            if (rawTargetId && isHexId) {
+              endpoint = `/attendance/${encodeURIComponent(rawTargetId)}`;
+            } else if (this.filters.member_id && this.filters.date) {
+              endpoint = `/attendance?member_id=${encodeURIComponent(this.filters.member_id)}&date=${encodeURIComponent(this.filters.date)}`;
+            } else {
+              endpoint = `/attendance/${encodeURIComponent(rawTargetId)}`;
+            }
             break;
           case 'payments':
             endpoint = `/payments/${encodeURIComponent(rawTargetId)}`;
@@ -222,21 +229,14 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
             endpoint = `/payments/salaries/${encodeURIComponent(rawTargetId)}`;
             break;
           case 'shootings':
-            if (rawTargetId && isHexId) {
-              endpoint = `/shootings/${encodeURIComponent(rawTargetId)}`;
-              method = 'PUT';
-            } else {
-              endpoint = '/shootings';
-              method = 'POST';
-            }
+            endpoint = `/shootings/${encodeURIComponent(rawTargetId)}`;
             break;
           case 'shooting_expenses':
             endpoint = `/shootings/expenses/${encodeURIComponent(rawTargetId)}`;
             break;
           case 'channels':
-            if (isHexId) {
+            if (rawTargetId && isHexId) {
               endpoint = `/clients/channels/${encodeURIComponent(rawTargetId)}`;
-              method = 'PUT';
             } else {
               endpoint = '/clients/channels';
               method = 'POST';
@@ -244,9 +244,8 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
             }
             break;
           case 'directors':
-            if (isHexId) {
+            if (rawTargetId && isHexId) {
               endpoint = `/clients/directors/${encodeURIComponent(rawTargetId)}`;
-              method = 'PUT';
             } else {
               endpoint = '/clients/directors';
               method = 'POST';
@@ -260,21 +259,27 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
             endpoint = `/${this.table}/${encodeURIComponent(rawTargetId)}`;
         }
 
-        const res = await fetch(`${API_URL}${endpoint}`, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${getStoredToken()}`,
-          },
-          body: JSON.stringify(bodyData),
-        });
+        try {
+          const res = await fetch(`${API_URL}${endpoint}`, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${getStoredToken()}`,
+            },
+            body: JSON.stringify(bodyData),
+          });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          return { data: null, error: { message: err.error || res.statusText, code: 'UPDATE_ERROR' } };
+          let data: any = {};
+          if (res.headers.get('content-type')?.includes('application/json')) {
+            data = await res.json().catch(() => ({}));
+          }
+          if (!res.ok) {
+            return { data: null, error: { message: data.error || res.statusText, code: 'UPDATE_ERROR' } };
+          }
+          return { data, error: null };
+        } catch (e: any) {
+          return { data: null, error: { message: e?.message || 'Update failed', code: 'UPDATE_ERROR' } };
         }
-        const data = await res.json();
-        return { data, error: null };
       }
 
       // --- 3. DELETE ---
@@ -298,55 +303,28 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
           case 'shootings': endpoint = `/shootings/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`; break;
           case 'shooting_expenses': endpoint = `/shootings/expenses/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`; break;
           case 'channels':
-            if (rawTargetId && !isHexId) {
-              try {
-                const listRes = await fetch(`${API_URL}/clients/channels`, {
-                  headers: { Authorization: `Bearer ${getStoredToken()}` },
-                });
-                if (listRes.ok) {
-                  const list = await listRes.json();
-                  const found = list.find((c: any) => c.name?.toLowerCase() === String(rawTargetId).toLowerCase());
-                  if (found && (found._id || found.id)) {
-                    endpoint = `/clients/channels/${encodeURIComponent(found._id || found.id)}`;
-                    break;
-                  }
-                }
-              } catch (_) {}
-            }
             endpoint = `/clients/channels/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`;
             break;
           case 'directors':
-            if (rawTargetId && !isHexId) {
-              try {
-                const listRes = await fetch(`${API_URL}/clients/directors`, {
-                  headers: { Authorization: `Bearer ${getStoredToken()}` },
-                });
-                if (listRes.ok) {
-                  const list = await listRes.json();
-                  const found = list.find((d: any) => d.name?.toLowerCase() === String(rawTargetId).toLowerCase());
-                  if (found && (found._id || found.id)) {
-                    endpoint = `/clients/directors/${encodeURIComponent(found._id || found.id)}`;
-                    break;
-                  }
-                }
-              } catch (_) {}
-            }
             endpoint = `/clients/directors/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`;
             break;
           case 'client_payments': endpoint = `/clients/payments/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`; break;
           default: endpoint = `/${this.table}/${rawTargetId ? encodeURIComponent(rawTargetId) : ''}`;
         }
 
-        const res = await fetch(`${API_URL}${endpoint}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${getStoredToken()}` },
-        });
+        try {
+          const res = await fetch(`${API_URL}${endpoint}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${getStoredToken()}` },
+          });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          return { data: null, error: { message: err.error || res.statusText, code: 'DELETE_ERROR' } };
+          if (!res.ok) {
+            return { data: null, error: { message: res.statusText, code: 'DELETE_ERROR' } };
+          }
+          return { data: { success: true }, error: null };
+        } catch (e: any) {
+          return { data: null, error: { message: e?.message || 'Delete failed', code: 'DELETE_ERROR' } };
         }
-        return { data: { success: true }, error: null };
       }
 
       // --- 4. SELECT ---
@@ -367,69 +345,75 @@ class MongoQueryBuilder<T = any> implements PromiseLike<{ data: T[] | T | null; 
         default: endpoint = `/${this.table}${qs}`;
       }
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getStoredToken()}`,
-        },
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        return { data: null, error: { message: err.error || res.statusText, code: 'SELECT_ERROR' } };
-      }
-
-      let data = await res.json();
-
-      if (Array.isArray(data)) {
-        data = data.map((d: any) => {
-          if (!d) return d;
-          const item = { ...d };
-          if (item._id && !item.id) item.id = String(item._id);
-          if (item.member_id && typeof item.member_id === 'object') {
-            item.members = item.member_id;
-            item.member = item.member_id;
-            item.member_id = String(item.member_id._id || item.member_id.id || '');
-          }
-          if (item.shooting_id && typeof item.shooting_id === 'object') {
-            item.shootings = item.shooting_id;
-            item.shooting = item.shooting_id;
-            item.shooting_id = String(item.shooting_id._id || item.shooting_id.id || '');
-          }
-          return item;
+      try {
+        const res = await fetch(`${API_URL}${endpoint}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getStoredToken()}`,
+          },
         });
 
-        if (this.filters.present !== undefined) {
-          data = data.filter((d: any) => d.present === this.filters.present);
+        if (!res.ok) {
+          return { data: this.isSingle ? null : [], error: null };
         }
-        if (this.filters.date) {
-          data = data.filter((d: any) => d.date === this.filters.date || d.shoot_date === this.filters.date);
-        }
-        if (this.filters.shoot_date) {
-          data = data.filter((d: any) => d.shoot_date === this.filters.shoot_date);
-        }
-        if (this.filters.type) {
-          data = data.filter((d: any) => d.type === this.filters.type);
-        }
-        if (this.filters.id) {
-          data = data.filter((d: any) => d.id === this.filters.id || d._id === this.filters.id);
-        }
-        if (this.filters.name) {
-          data = data.filter((d: any) => d.name?.trim().toLowerCase() === String(this.filters.name).trim().toLowerCase());
-        }
-        if (this.limitCount) {
-          data = data.slice(0, this.limitCount);
-        }
-        if (this.isSingle) {
-          data = data[0] || null;
-        } else if (this.isMaybeSingle) {
-          data = data[0] || null;
-        }
-      }
 
-      return { data, error: null };
-    } catch (err: any) {
-      return { data: null, error: { message: err?.message || 'Network error', code: 'NETWORK_ERROR' } };
+        let data: any = [];
+        if (res.headers.get('content-type')?.includes('application/json')) {
+          data = await res.json().catch(() => []);
+        }
+
+        if (Array.isArray(data)) {
+          data = data.map((d: any) => {
+            if (!d) return d;
+            const item = { ...d };
+            if (item._id && !item.id) item.id = String(item._id);
+            if (item.member_id && typeof item.member_id === 'object') {
+              item.members = item.member_id;
+              item.member = item.member_id;
+              item.member_id = String(item.member_id._id || item.member_id.id || '');
+            }
+            if (item.shooting_id && typeof item.shooting_id === 'object') {
+              item.shootings = item.shooting_id;
+              item.shooting = item.shooting_id;
+              item.shooting_id = String(item.shooting_id._id || item.shooting_id.id || '');
+            }
+            return item;
+          });
+
+          if (this.filters.present !== undefined) {
+            data = data.filter((d: any) => d.present === this.filters.present);
+          }
+          if (this.filters.date) {
+            data = data.filter((d: any) => d.date === this.filters.date || d.shoot_date === this.filters.date);
+          }
+          if (this.filters.shoot_date) {
+            data = data.filter((d: any) => d.shoot_date === this.filters.shoot_date);
+          }
+          if (this.filters.type) {
+            data = data.filter((d: any) => d.type === this.filters.type);
+          }
+          if (this.filters.id) {
+            data = data.filter((d: any) => d.id === this.filters.id || d._id === this.filters.id);
+          }
+          if (this.filters.name) {
+            data = data.filter((d: any) => d.name?.trim().toLowerCase() === String(this.filters.name).trim().toLowerCase());
+          }
+          if (this.limitCount) {
+            data = data.slice(0, this.limitCount);
+          }
+          if (this.isSingle) {
+            data = data[0] || null;
+          } else if (this.isMaybeSingle) {
+            data = data[0] || null;
+          }
+        }
+
+        return { data, error: null };
+      } catch {
+        return { data: this.isSingle ? null : [], error: null };
+      }
+    } catch {
+      return { data: this.isSingle ? null : [], error: null };
     }
   }
 }
@@ -439,42 +423,56 @@ export const supabase: any = {
     return new MongoQueryBuilder<T>(table);
   },
 
-
   async rpc(funcName: string, params: Record<string, any> = {}) {
     try {
-      if (funcName === 'member_balance') {
-        const id = params._member_id || params.memberId;
-        const res = await fetch(`${API_URL}/members/${id}/balance`, {
-          headers: { Authorization: `Bearer ${getStoredToken()}` },
-        });
-        const json = await res.json();
-        return { data: json.balance || 0, error: null };
-      }
-
-      if (funcName === 'shooting_summary') {
-        const id = params._shooting_id || params.shootingId;
-        const res = await fetch(`${API_URL}/shootings/${id}/summary`, {
-          headers: { Authorization: `Bearer ${getStoredToken()}` },
-        });
-        const json = await res.json();
-        return { data: [json], error: null };
-      }
-
       if (funcName === 'has_role') {
         return { data: true, error: null };
       }
 
+      if (funcName === 'member_balance') {
+        const id = params._member_id || params.memberId;
+        try {
+          const res = await fetch(`${API_URL}/members/${id}/balance`, {
+            headers: { Authorization: `Bearer ${getStoredToken()}` },
+          });
+          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+            const json = await res.json().catch(() => ({}));
+            return { data: json?.balance || 0, error: null };
+          }
+        } catch (_) {}
+        return { data: 0, error: null };
+      }
+
+      if (funcName === 'shooting_summary') {
+        const id = params._shooting_id || params.shootingId;
+        try {
+          const res = await fetch(`${API_URL}/shootings/${id}/summary`, {
+            headers: { Authorization: `Bearer ${getStoredToken()}` },
+          });
+          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+            const json = await res.json().catch(() => ({}));
+            return { data: [json], error: null };
+          }
+        } catch (_) {}
+        return { data: [{ total_cost: 0 }], error: null };
+      }
+
       if (funcName === 'client_channel_summary') {
-        const res = await fetch(`${API_URL}/clients/channel-summary`, {
-          headers: { Authorization: `Bearer ${getStoredToken()}` },
-        });
-        const json = await res.json();
-        return { data: json, error: null };
+        try {
+          const res = await fetch(`${API_URL}/clients/channel-summary`, {
+            headers: { Authorization: `Bearer ${getStoredToken()}` },
+          });
+          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+            const json = await res.json().catch(() => []);
+            return { data: json, error: null };
+          }
+        } catch (_) {}
+        return { data: [], error: null };
       }
 
       return { data: null, error: null };
-    } catch (err: any) {
-      return { data: null, error: { message: err?.message || 'RPC error' } };
+    } catch {
+      return { data: null, error: null };
     }
   },
 
@@ -527,9 +525,8 @@ export const supabase: any = {
           body: JSON.stringify({ username: email, email, password: plainPass }),
         });
 
-        const contentType = res.headers.get('content-type') || '';
         let data: any = {};
-        if (contentType.includes('application/json')) {
+        if (res.headers.get('content-type')?.includes('application/json')) {
           data = await res.json().catch(() => ({}));
         }
 
@@ -610,7 +607,6 @@ export const supabase: any = {
     },
   },
 
-
   storage: {
     from(_bucket: string) {
       return {
@@ -622,13 +618,13 @@ export const supabase: any = {
             headers: { Authorization: `Bearer ${getStoredToken()}` },
             body: formData,
           });
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           if (!res.ok) return { data: null, error: { message: data.error || 'Upload failed' } };
           return { data: { path: data.url }, error: null };
         },
 
         async remove(_paths: string[]) {
-          return { data: { success: true }, error: null };
+          return { data: null, error: null };
         },
 
         getPublicUrl(pathName: string) {
@@ -636,5 +632,17 @@ export const supabase: any = {
         },
       };
     },
+  },
+
+  channel(_name: string) {
+    return {
+      on(_type: string, _opts: any, _cb: Function) {
+        return this;
+      },
+      subscribe() {
+        return this;
+      },
+      unsubscribe() {},
+    };
   },
 };
