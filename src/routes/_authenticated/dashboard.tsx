@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 import { MonthShootingsDetails } from "@/components/month-shootings-details";
 import { ShootingCalendar } from "@/components/shooting-calendar";
 import { BrandAvatar, useChannels } from "@/lib/brand";
+import { sendBulkSmsToMembers, getBulkSmsBalance } from "@/lib/bulk-sms.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,

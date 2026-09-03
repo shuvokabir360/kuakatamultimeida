@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Send, Search, MessageSquare, CheckCheck } from "lucide-react";
 import { taka, toBn } from "@/lib/format";
+import { sendBulkSmsToMembers } from "@/lib/bulk-sms.functions";
 
 export const Route = createFileRoute("/_authenticated/sms")({
   component: BulkSmsPage,

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ChevronDown, Check, Search, Download, MessageCircle, Sparkles, PartyPopper, TrendingUp, Wand2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import kmLogo from "@/assets/km-logo.png";
+import { generateCongratsMessage } from "@/lib/congrats-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/congrats")({
   component: CongratsPage,
