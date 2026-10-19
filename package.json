@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n \"SERVER,CLIENT\" -c \"cyan,green\" \"node server/src/index.js\" \"vite dev\"",
+    "dev:php": "concurrently -k -n \"PHP_API,CLIENT\" -c \"magenta,green\" \"php -S 127.0.0.1:5000 -t . api/router.php\" \"vite dev\"",
+    "php:dev": "php -S 127.0.0.1:5000 -t . api/router.php",
     "start": "node app.js",
     "server": "node server/src/index.js",
     "server:dev": "node --watch server/src/index.js",

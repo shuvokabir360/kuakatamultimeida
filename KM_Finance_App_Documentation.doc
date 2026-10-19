@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Kuakata Multimedia Finance — সিস্টেম ও ডেভেলপমেন্ট ডকুমেন্টেশন</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page {
+    size: A4;
+    margin: 1in;
+  }
+  body {
+    font-family: 'SolaimanLipi', 'Kalpurush', 'Hind Siliguri', 'Segoe UI', Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    background-color: #ffffff;
+    font-size: 11pt;
+  }
+  h1 {
+    color: #0d9488;
+    font-size: 20pt;
+    border-bottom: 2px solid #0d9488;
+    padding-bottom: 6px;
+    margin-top: 24pt;
+    margin-bottom: 12pt;
+  }
+  h2 {
+    color: #0f172a;
+    font-size: 14pt;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+    border-left: 4px solid #0d9488;
+    padding-left: 8px;
+  }
+  h3 {
+    color: #0369a1;
+    font-size: 12pt;
+    margin-top: 14pt;
+    margin-bottom: 6pt;
+  }
+  p {
+    margin-top: 0;
+    margin-bottom: 8pt;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10pt;
+    margin-bottom: 16pt;
+    font-size: 10pt;
+  }
+  th {
+    background-color: #0d9488;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+  }
+  td {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+  .callout {
+    background-color: #f0fdfa;
+    border-left: 4px solid #0d9488;
+    padding: 12px 16px;
+    margin: 14pt 0;
+    border-radius: 4px;
+  }
+  .callout-title {
+    font-weight: bold;
+    color: #0d9488;
+    margin-bottom: 4px;
+    font-size: 11pt;
+  }
+  ul {
+    margin-top: 4pt;
+    margin-bottom: 10pt;
+    padding-left: 24px;
+  }
+  li {
+    margin-bottom: 4pt;
+  }
+  .header-card {
+    text-align: center;
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: white;
+    padding: 24px;
+    border-radius: 8px;
+    margin-bottom: 24pt;
+  }
+  .header-card h1 {
+    color: white;
+    border: none;
+    margin: 0;
+    font-size: 24pt;
+    padding: 0;
+  }
+  .header-card p {
+    color: #ccfbf1;
+    margin: 6px 0 0 0;
+    font-size: 13pt;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9pt;
+    font-weight: bold;
+    background-color: #e2e8f0;
+    color: #334155;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-card">
+  <h1>Kuakata Multimedia Finance</h1>
+  <p>টিম, শুটিং, হাজিরা ও ফাইন্যান্স ম্যানেজমেন্ট সিস্টেম — সম্পূর্ণ ফিচার ও ধারাবাহিক ডেভেলপমেন্ট প্ল্যান</p>
+</div>
+
+<div class="callout">
+  <div class="callout-title">📌 ডকুমেন্টের উদ্দেশ্য ও সারসংক্ষেপ</div>
+  এই ডকুমেন্টটিতে <b>Kuakata Multimedia Finance</b> অ্যাপ্লিকেশনের সমস্ত ফিচার, ডেটাবেস স্কিমা, এপিআই আর্কিটেকচার এবং নতুন করে অনুরূপ সাইট তৈরির ১০-ধাপের সম্পূর্ণ প্রজেক্ট রোডম্যাপ বিস্তারিতভাবে লিপিবদ্ধ করা হয়েছে। গুগল ডক (Google Docs) বা মাইক্রোসফট ওয়ার্ডে এটি সহজে ওপেন ও এডিট করা যাবে।
+</div>
+
+<h1>১. সিস্টেম আর্কিটেকচার ও টেকনোলজি স্ট্যাক (Tech Stack)</h1>
+<p>সিস্টেমটি আধুনিক ফুলস্ট্যাক ক্লাউড আর্কিটেকচারের উপর প্রতিষ্ঠিত:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 25%;">লেয়ার / কম্পোনেন্ট</th>
+      <th style="width: 35%;">ব্যবহৃত টেকনোলজি</th>
+      <th style="width: 40%;">কাজের বিবরণ ও উদ্দেশ্য</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Frontend Framework</b></td>
+      <td>React 19, TypeScript, TanStack Router (বা Next.js / Vite)</td>
+      <td>টাইপ-সেফ ক্লায়েন্ট রাউটিং ও হাই-পারফরম্যান্স স্পিড</td>
+    </tr>
+    <tr>
+      <td><b>Styling & UI</b></td>
+      <td>Tailwind CSS v4, Radix UI Primitives, Lucide Icons</td>
+      <td>গ্লাস-মরফিজম ও মোবাইল রেসপনসিভ প্রিমিয়াম ইউজার ইন্টারফেস</td>
+    </tr>
+    <tr>
+      <td><b>State & Data</b></td>
+      <td>TanStack React Query v5</td>
+      <td>রিয়েল-টাইম ক্যাশিং ও অটো ব্যাকগ্রাউন্ড রিফেচিং</td>
+    </tr>
+    <tr>
+      <td><b>Backend Server</b></td>
+      <td>Node.js, Express.js REST API</td>
+      <td>কোর বিজনেস লজিক ও সিকিউর ডেটা ট্রানজেকশন প্রসেসিং</td>
+    </tr>
+    <tr>
+      <td><b>Database Layer</b></td>
+      <td>MongoDB Atlas (Mongoose) / PostgreSQL (Supabase)</td>
+      <td>ক্লাউড ডেটাবেস স্টোরেজ ও রিলেশনাল ডেটা মডেলিং</td>
+    </tr>
+    <tr>
+      <td><b>Authentication</b></td>
+      <td>JWT Auth, Role Guard, SMS OTP Gate</td>
+      <td>অ্যাডমিন প্যানেল সিকিউরিটি ও মেম্বার ওটিপি গেটওয়ে</td>
+    </tr>
+    <tr>
+      <td><b>External Services</b></td>
+      <td>BulkSMSBD Gateway, AI SDK (OpenAI Compatible)</td>
+      <td>বাল্ক এসএমএস, ওটিপি সেন্ড এবং এআই অভিনন্দন বার্তা তৈরি</td>
+    </tr>
+    <tr>
+      <td><b>Media & PDF</b></td>
+      <td>jsPDF, AutoTable, html-to-image, qrcode, Image Crop</td>
+      <td>A4 সাইজ PDF ডাউনলোড ও মানি রিসিট ভাউচার জেনারেশন</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1>২. অ্যাপ্লিকেশনের বিস্তারিত সকল ফিচারসমূহ (Detailed Features)</h1>
+
+<h2>ক. এক্সিকিউটিভ ড্যাশবোর্ড (Executive Dashboard & Analytics)</h2>
+<ul>
+  <li><b>লাইভ ব্যালেন্স মেট্রিক্স:</b> সিস্টেমের মোট অপরিশোধিত কর্মী বকেয়া (Total Outstanding Balance)।</li>
+  <li><b>মাসিক ব্রেকডাউন:</b> চলতি মাসের মোট খরচ ও পূর্ববর্তী মাসের বকেয়া টাকার নিখুঁত বিভাজন।</li>
+  <li><b>প্রজেক্ট স্ট্যাটাস:</b> চলতি মাসের মোট শুটিং সংখ্যা ও সক্রিয় সদস্য সংখ্যা।</li>
+  <li><b>ইন্টারেক্টিভ শুটিং ক্যালেন্ডার:</b> দিনভিত্তিক শুটিং সূচি, খরচ ও চ্যানেল কালার কোডিং সহ ইন্টারঅ্যাক্টিভ ক্যালেন্ডার।</li>
+  <li><b>কুইক অ্যাকশন হাব:</b> এক ক্লিকে নতুন পেমেন্ট, হাজিরা শিট, শুটিং ও বাল্ক এসএমএস অপশন।</li>
+  <li><b>রিসেন্ট ট্রানজেকশন:</b> সাম্প্রতিক সময়ের সকল লেনদেনের লাইভ হিস্ট্রি ফিড।</li>
+</ul>
+
+<h2>খ. সদস্য ব্যবস্থাপনা (Team & Member Management)</h2>
+<ul>
+  <li><b>দুই ধরনের কর্মী মডেল:</b> দৈনিক মজুরি (Daily Worker) এবং ফিক্সড মাসিক বেতন (Monthly Salary)।</li>
+  <li><b>স্মার্ট ফটো ক্রপার:</b> ছবি আপলোড করার সময় আইডি কার্ড অনুপাতে নিখুঁতভাবে ক্রপ করার ব্যবস্থা।</li>
+  <li><b>ব্যাংকিং ও এমএফএস তথ্য:</b> ব্যাংক অ্যাকাউন্ট, বিকাশ, নগদ ও রকেট পার্সোনাল/মার্চেন্ট নম্বর সংরক্ষণ।</li>
+  <li><b>অটো ব্যালেন্স ক্যালকুলেশন:</b> <code>হাজিরা ভিত্তিক আয় + মাসিক বেতন + বোনাস - প্রদত্ত পেমেন্ট = রিয়েল-টাইম ব্যালেন্স</code>।</li>
+  <li><b>এক ক্লিকে মাসিক বেতন যোগ:</b> চলতি মাসের বেতন কর্মীদের একাউন্টে এক ক্লিকে যুক্ত করা (ডুপ্লিকেট প্রতিরোধ সহ)।</li>
+  <li><b>ডিজিটাল আইডি ও QR কোড:</b> প্রতিটি সদস্যের জন্য ইউনিক কিউআর কোড যা স্ক্যান করলে সরাসরি তার আইডি ভিউ হয়।</li>
+</ul>
+
+<h2>গ. স্মার্ট হাজিরা সিস্টেম (Smart Attendance System)</h2>
+<ul>
+  <li><b>ক্যালেন্ডার ভিউ ও বাল্ক মার্কিং:</b> ক্যালেন্ডার থেকে যেকোনো তারিখ সিলেক্ট করে এক ক্লিকে পুরো টিমের হাজিরা মার্কিং।</li>
+  <li><b>শুটিং-লিঙ্কড হাজিরা:</b> নির্দিষ্ট শুটিং প্রজেক্টের সাথে হাজিরা কানেক্ট করা (কোন শুটিংয়ে কারা কাজ করেছে)।</li>
+  <li><b>রেট ওভাররাইড (Rate Override):</b> কোনো কর্মীকে বিশেষ দিনে সাধারণ রেটের চেয়ে কম/বেশি টাকা দিলে তা ওভাররাইড করার অপশন।</li>
+  <li><b>মাসিক উপস্থিতি হিস্ট্রি:</b> মাসিক মোট উপস্থিত দিন ও অর্জিত মজুরির বিস্তারিত সামারি।</li>
+</ul>
+
+<h2>ঘ. শুটিং ও প্রজেক্ট ফাইন্যান্স (Shooting & Project Finance)</h2>
+<ul>
+  <li><b>শুটিং প্রজেক্ট ক্রিয়েশন:</b> শুটিংয়ের নাম, তারিখ, পরিচালক, চ্যানেল, লোকেশন, বাজেট ও কাজের বিবরণ।</li>
+  <li><b>ডেট কনফ্লিক্ট প্রিভেনশন:</b> একই তারিখে ডুপ্লিকেট বা ওভারল্যাপিং শুটিং এন্ট্রি স্বয়ংক্রিয়ভাবে ব্লক করা।</li>
+  <li><b>টিম কস্ট সামারি:</b> শুটিংয়ে উপস্থিত কর্মীদের মোট মজুরি হিসাব।</li>
+  <li><b>শুটিংয়ের খুচরা খরচ:</b> শুটিং চলাকালীন খাবার, যাতায়াত, ভেন্যু ও লাইট ভাড়ার মতো খুচরা খরচ এন্ট্রি।</li>
+  <li><b>লাভ-ক্ষতি (P&L) অ্যানালাইসিস:</b> মোট চুক্তি বাজেট থেকে কর্মী খরচ ও খুচরা খরচ বাদ দিয়ে নিট লাভ-ক্ষতি নির্ণয়।</li>
+</ul>
+
+<h2>ঙ. ক্লায়েন্ট ও চ্যানেল বকেয়া ট্র্যাকিং (Client & Channel Dues)</h2>
+<ul>
+  <li><b>ক্লায়েন্ট প্রোফাইল:</b> ইউটিউব চ্যানেল বা ক্লায়েন্টের নাম, লোগো, থিম কালার ও মালিকানা (নিজস্ব/বাইরের)।</li>
+  <li><b>লাইভ লেজার:</b> মোট শুটিং চুক্তিমূল্য, প্রাপ্ত মোট জমা এবং বর্তমান মোট বকেয়া টাকার স্বয়ংক্রিয় হিসাব।</li>
+  <li><b>পেমেন্ট রিসিভ এন্ট্রি:</b> ক্লায়েন্ট থেকে কিস্তি বা অগ্রিম টাকা জমা নেওয়ার এন্ট্রি ও ভাউচার হিস্ট্রি।</li>
+</ul>
+
+<h2>চ. পেমেন্ট ও মানি রিসিপ্ট ভাউচার (Payments & Money Receipts)</h2>
+<ul>
+  <li><b>বেতন ও অগ্রিম পেমেন্ট:</b> কর্মীদের বেতন, অগ্রিম বা আংশিক পেমেন্ট দেওয়ার এন্ট্রি সিস্টেম।</li>
+  <li><b>বোনাস ডিস্ট্রিবিউশন:</b> উৎসব, ঈদ বা ভালো পারফরম্যান্সের জন্য কারণ উল্লেখসহ বোনাস প্রদান।</li>
+  <li><b>ডিজিটাল মানি রিসিপ্ট:</b> যেকোনো পেমেন্টে ক্লিক করলে সাথে সাথে ডিজিটাল মানি রিসিপ্ট ভাউচার তৈরি হয়।</li>
+  <li><b>PDF ও WhatsApp শেয়ার:</b> রিসিপ্ট সরাসরি PDF ডাউনলোড বা এক ক্লিকে কর্মীর হোয়াটসঅ্যাপে পাঠানোর ব্যবস্থা।</li>
+</ul>
+
+<h2>ছ. পাবলিক মেম্বার প্রোফাইল ও SMS OTP গেট (Public Profile & OTP Gate)</h2>
+<ul>
+  <li><b>QR কোড ভেরিফিকেশন:</b> সদস্যের আইডি কার্ডের QR কোড স্ক্যান করলে পাবলিক প্রোফাইল লিংকে যায়।</li>
+  <li><b>ওটিপি সিকিউরিটি গেটওয়ে:</b> গোপনীয়তা রক্ষার স্বার্থে কর্মীর রেজিস্টার্ড মোবাইলে BulkSMSBD দিয়ে ৬ ডিজিটের ওটিপি যায়।</li>
+  <li><b>পার্সোনাল স্টেটমেন্ট ভিউ:</b> ওটিপি যাচাইয়ের পর কর্মী তার নিজের মোট হাজিরা, বোনাস, পেমেন্ট হিস্ট্রি ও ব্যালেন্স দেখতে পায়।</li>
+</ul>
+
+<h2>জ. এআই অভিনন্দন ও ইনক্রিমেন্ট কার্ড জেনারেটর (AI Congrats Card)</h2>
+<ul>
+  <li><b>এআই বার্তা জেনারেটর:</b> কর্মীর নাম, রোল, পুরোনো ও নতুন বেতন দিলে AI স্বয়ংক্রিয়ভাবে অনুপ্রেরণামূলক বাংলা বার্তা লেখে।</li>
+  <li><b>পোস্টার কার্ড প্রিভিউ:</b> ডিজিটাল গোল্ডেন/ডার্ক প্রিমিয়াম পোস্টার কার্ড প্রিভিউ।</li>
+  <li><b>ইমেজ ও PDF এক্সপোর্ট:</b> কার্ডটি সরাসরি হাই-কোয়ালিটি PNG ইমেজ বা PDF হিসেবে সেভ করার সুবিধা।</li>
+</ul>
+
+<h2>ঝ. বাল্ক এসএমএস ও নোটিফিকেশন সিস্টেম (Bulk SMS Integration)</h2>
+<ul>
+  <li><b>লাইভ এসএমএস গেটওয়ে:</b> সরাসরি BulkSMSBD এপিআই এর মাধ্যমে দ্রুত এসএমএস ডেলিভারি।</li>
+  <li><b>ব্যালেন্স ট্র্যাকিং:</b> লাইভ একাউন্ট ব্যালেন্স ও মেসেজ ক্রেডিট চেক।</li>
+  <li><b>ডায়নামিক টেমপ্লেট:</b> শুটিং নোটিশ, ছুটির তথ্য বা বেতন আপডেটের জন্য কাস্টম টেমপ্লেট ড্রপডাউন।</li>
+</ul>
+
+<h2>ঞ. পূর্ণাঙ্গ অডিট ও ফিন্যান্সিয়াল রিপোর্ট (Reports & Analytics)</h2>
+<ul>
+  <li><b>ডেট রেঞ্জ সিলেক্টর:</b> মাসিক বা যেকোনো নির্দিষ্ট তারিখ অনুযায়ী ডেটা ফিল্টারিং।</li>
+  <li><b>সামগ্রিক সামারি:</b> মোট কর্মী, মোট হাজিরা দিন, মজুরি ব্যয়, বোনাস, শুটিং ব্যয় ও মোট ক্যাশ-আউটের সামারি।</li>
+  <li><b>এক ক্লিকে PDF এক্সপোর্ট:</b> অফিশিয়াল A4 ফরম্যাটে টেবিল সহ প্রিন্ট ও PDF এক্সপোর্ট।</li>
+</ul>
+
+<h1>৩. ডেটাবেস স্কিমা ডিজাইন (Database Schema)</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 20%;">মডেল নাম</th>
+      <th style="width: 50%;">ফিল্ডসমূহ (Fields)</th>
+      <th style="width: 30%;">বিবরণ (Description)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>User</b></td>
+      <td>username, email, password (bcrypt hash), name, role (admin/manager), phone</td>
+      <td>সিস্টেম অ্যাডমিন অ্যাকাউন্ট ও পারমিশন</td>
+    </tr>
+    <tr>
+      <td><b>Member</b></td>
+      <td>name, phone, role, type (daily/monthly), rate, photo_url, owner_id</td>
+      <td>টিম সদস্যের প্রোফাইল ও বেসিক রেট</td>
+    </tr>
+    <tr>
+      <td><b>Attendance</b></td>
+      <td>member_id (Ref), date (YYYY-MM-DD), present (bool), shooting_id, rate_override</td>
+      <td>দৈনিক উপস্থিতি ও শুটিং কানেকশন</td>
+    </tr>
+    <tr>
+      <td><b>Shooting</b></td>
+      <td>name, shoot_date, director, channel, contract_amount, location, note</td>
+      <td>শুটিং প্রজেক্ট ও ক্লায়েন্ট চুক্তি</td>
+    </tr>
+    <tr>
+      <td><b>ShootingExpense</b></td>
+      <td>shooting_id (Ref), amount, note, spent_at</td>
+      <td>শুটিংয়ের খুচরা খরচ (খাবার, পরিবহন ইত্যাদি)</td>
+    </tr>
+    <tr>
+      <td><b>Payment</b></td>
+      <td>member_id (Ref), amount, note, paid_at</td>
+      <td>সদস্যকে দেওয়া নগদ/ব্যাংক পেমেন্ট রেকর্ড</td>
+    </tr>
+    <tr>
+      <td><b>MonthlySalary</b></td>
+      <td>member_id (Ref), month (YYYY-MM-01), amount</td>
+      <td>মাসিক ভিত্তিক নির্ধারিত কর্মীদের বেতন এন্ট্রি</td>
+    </tr>
+    <tr>
+      <td><b>Bonus</b></td>
+      <td>member_id (Ref), amount, reason, given_at</td>
+      <td>উৎসব বা পারফরম্যান্স বোনাস হিস্ট্রি</td>
+    </tr>
+    <tr>
+      <td><b>Channel</b></td>
+      <td>name, is_own (bool), logo_url, color</td>
+      <td>ক্লায়েন্ট বা নিজস্ব ইউটিউব চ্যানেল তালিকা</td>
+    </tr>
+    <tr>
+      <td><b>Director</b></td>
+      <td>name, phone, photo_url</td>
+      <td>পরিচালক কন্টাক্ট ডিরেক্টরি</td>
+    </tr>
+    <tr>
+      <td><b>ClientPayment</b></td>
+      <td>shooting_id (Ref), channel, amount, received_at, method, note</td>
+      <td>ক্লায়েন্ট থেকে আদায়কৃত টাকা</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1>৪. ধাপে ধাপে নতুন সাইট তৈরির ধারাবাহিক প্ল্যান (১০টি ফেজ)</h1>
+
+<h2>ফেজ ১: এনভায়রনমেন্ট ও প্রজেক্ট সেটআপ (Project Setup)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> Frontend (React 19 + TypeScript + Vite/TanStack Router) এবং Backend (Node.js + Express) রিপোজিটরি ইনিশিয়ালাইজেশন।</li>
+  <li><b>পদক্ষেপ ২:</b> প্রয়োজনীয় প্যাকেজ ইনস্টল: Tailwind CSS v4, Lucide Icons, TanStack Query, Radix UI, Mongoose, JWT, bcryptjs, jsPDF, html-to-image ইত্যাদি।</li>
+  <li><b>পদক্ষেপ ৩:</b> এনভায়রনমেন্ট ফাইল (.env) প্রস্তুত: PORT, MONGODB_URI, JWT_SECRET, BULKSMSBD_API_KEY, AI_API_KEY কনফিগার করা।</li>
+</ul>
+
+<h2>ফেজ ২: ডেটাবেস ও ব্যাকএন্ড এপিআই তৈরি (Backend APIs)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> সকল Mongoose Models তৈরি করা।</li>
+  <li><b>পদক্ষেপ ২:</b> অটো ব্যালেন্স ক্যালকুলেশন ও শুটিং সামারি হেল্পার ফাংশন তৈরি করা।</li>
+  <li><b>পদক্ষেপ ৩:</b> REST API এন্ডপয়েন্ট তৈরি ও টেস্ট করা: <code>/api/members</code>, <code>/api/attendance</code>, <code>/api/shootings</code>, <code>/api/payments</code>, <code>/api/clients</code>, <code>/api/reports</code>।</li>
+</ul>
+
+<h2>ফেজ ৩: অথেন্টিকেশন ও অ্যাডমিন গার্ড (Auth & Security)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> JWT ভিত্তিক লগইন এন্ডপয়েন্ট (<code>/api/auth/login</code>) ও পাসওয়ার্ড হ্যাশিং (bcrypt) বাস্তবায়ন।</li>
+  <li><b>পদক্ষেপ ২:</b> Express authMiddleware তৈরি যা প্রতিটি প্রটেক্টেড রুটে টোকেন ও অ্যাডমিন রোল যাচাই করবে।</li>
+  <li><b>পদক্ষেপ ৩:</b> ফ্রন্টএন্ডে প্রটেক্টেড লেআউট (<code>_authenticated/route.tsx</code>) সেটআপ করা।</li>
+</ul>
+
+<h2>ফেজ ৪: মেম্বার ও হাজিরা মডিউল (Members & Attendance)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> সদস্য তালিকা পেজ (<code>/members</code>): মেম্বার কার্ড, ব্যালেন্স ব্যাজ, ব্যাংকিং তথ্য এডিটর ও স্মার্ট ইমেজ ক্রপার।</li>
+  <li><b>পদক্ষেপ ২:</b> এক ক্লিকে মাসিক বেতন যুক্ত করার মিউটেশন (ডুপ্লিকেট রোখার অ্যালগরিদম সহ)।</li>
+  <li><b>পদক্ষেপ ৩:</b> হাজিরা পেজ (<code>/attendance</code>): ক্যালেন্ডার ডেট পিকার, বাল্ক প্রেজেন্ট/অ্যাবসেন্ট চেকবক্স, শুটিং লিংক ও কাস্টম রেট ওভাররাইড বক্স।</li>
+</ul>
+
+<h2>ফেজ ৫: শুটিং ও প্রজেক্ট ফাইন্যান্স (Shooting & Expenses)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> শুটিং শিডিউল পেজ (<code>/shootings</code>): শুটিং ফর্ম, তারিখ কনফликт প্রিভেনশন এবং লাইভ শুটিং লিস্ট।</li>
+  <li><b>পদক্ষেপ ২:</b> শুটিং খরচ ট্র্যাকার: খাবার, গাড়ি ভাড়া ইত্যাদি যুক্ত করার সাব-মডিউল।</li>
+  <li><b>পদক্ষেপ ৩:</b> শুটিং সামারি মডাল: উক্ত শুটিংয়ের মোট কর্মী ব্যয় + অতিরিক্ত খরচ = টোটাল প্রজেক্ট কস্ট অটো ডিসপ্লে।</li>
+</ul>
+
+<h2>ফেজ ৬: পেমেন্ট ও মানি রিসিপ্ট ভাউচার (Payments & Receipts)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> পেমেন্ট পেজ (<code>/payments</code>): নগদ/ব্যাংক পেমেন্ট দেওয়ার ফর্ম ও উৎসব বোনাস এন্ট্রি সেকশন।</li>
+  <li><b>পদক্ষেপ ২:</b> পেমেন্ট হিস্ট্রি টেবিল ও ফিল্টারিং।</li>
+  <li><b>পদক্ষেপ ৩:</b> মানি রিসিপ্ট কম্পোনেন্ট: প্রফেশনাল মানি রিসিট ভাউচার, PDF ডাউনলোড ও WhatsApp শেয়ার বাটন।</li>
+</ul>
+
+<h2>ফেজ ৭: ক্লায়েন্ট হিসাব ও ডিরেক্টরি (Client Dues & Directory)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> ক্লায়েন্ট বকেয়া পেজ (<code>/client-dues</code>): চ্যানেল ভিত্তিক মোট কন্ট্রাক্ট বাজেট, আদায়কৃত টাকা ও বর্তমান বাকি টাকার টেবিল।</li>
+  <li><b>পদক্ষেপ ২:</b> ক্লায়েন্ট থেকে কিস্তি রিসিভ করার এন্ট্রি ডায়ালগ।</li>
+  <li><b>পদক্ষেপ ৩:</b> চ্যানেল ও পরিচালক ডিরেক্টরি পেজ (<code>/directory</code>): নাম রিনেম করলে পূর্বের সব শুটিং ও পেমেন্টে একসাথে অটো সিঙ্ক।</li>
+</ul>
+
+<h2>ফেজ ৮: পাবলিক মেম্বার প্রোফাইল ও SMS OTP গেট (Public Profile & OTP)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> পাবলিক রুট (<code>/p/$memberId</code>): মেম্বারের ডিজিটাল আইডি কার্ড ও QR কোড ডিসপ্লে।</li>
+  <li><b>পদক্ষেপ ২:</b> OTP সিকিউরিটি গেটওয়ে: BulkSMSBD দিয়ে কর্মীর নিজস্ব মোবাইলে গোপন ৬-ডিজিট কোড সেন্ডিং।</li>
+  <li><b>পদক্ষেপ ৩:</b> ওটিপি সফল হলে কর্মীর সম্পূর্ণ হাজিরা, বোনাস ও পেমেন্ট হিস্ট্রি আনলক হওয়া।</li>
+</ul>
+
+<h2>ফেজ ৯: AI অভিনন্দন কার্ড, রিপোর্ট ও বাল্ক এসএমএস (AI, SMS & Reports)</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> অভিনন্দন পেজ (<code>/congrats</code>): AI দিয়ে সুন্দর বাংলা বেতন বৃদ্ধি ও প্রশংসা বার্তা জেনারেট এবং পোস্টার কার্ড ডাউনলোড।</li>
+  <li><b>পদক্ষেপ ২:</b> গ্রুপ এসএমএস পেজ (<code>/sms</code>): মেম্বারদের সিলেক্ট করে এক ক্লিকে টেমপ্লেট এসএমএস পাঠানোর ব্যবস্থা।</li>
+  <li><b>পদক্ষেপ ৩:</b> রিপোর্ট পেজ (<code>/reports</code>): তারিখভিত্তিক মোট আয়-ব্যয় সামারি এবং এক ক্লিকে অফিশিয়াল A4 PDF এক্সপোর্ট (jsPDF-AutoTable)।</li>
+</ul>
+
+<h2>ফেজ ১০: PWA অপ্টিমাইজেশন, টেস্টিং ও প্রোডাকশন ডিপ্লয়মেন্ট</h2>
+<ul>
+  <li><b>পদক্ষেপ ১:</b> মোবাইল PWA কনফিগারেশন (manifest.json, Install App বাটন, Pull-to-refresh)।</li>
+  <li><b>পদক্ষেপ ২:</b> সিকিউরিটি ও পারফরম্যান্স টেস্টিং: বড় ডেটাসেট দিয়ে ক্যাশিং ও এপিআই অপ্টিমাইজেশন।</li>
+  <li><b>পদক্ষেপ ৩:</b> প্রোডাকশন বিল্ড ও ক্লাউড/VPS/cPanel ডিপ্লয়মেন্ট (MongoDB Atlas কানেক্টেড)।</li>
+</ul>
+
+<h1>৫. গুরুত্বপূর্ণ কনফিগারেশন ও এনভায়রনমেন্ট ভেরিয়েবলস (.env)</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 35%;">ভেরিয়েবল নাম (Key)</th>
+      <th style="width: 35%;">নমুনা মান (Example Value)</th>
+      <th style="width: 30%;">বিবরণ (Description)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>PORT</b></td>
+      <td>5000</td>
+      <td>সার্ভার রানিং পোর্ট নম্বর</td>
+    </tr>
+    <tr>
+      <td><b>MONGODB_URI</b></td>
+      <td>mongodb+srv://user:pass@cluster.mongodb.net/km_finance</td>
+      <td>MongoDB Atlas ক্লাউড ডেটাবেস কানেকশন স্ট্রিং</td>
+    </tr>
+    <tr>
+      <td><b>JWT_SECRET</b></td>
+      <td>km_super_secret_jwt_key_2026</td>
+      <td>লগইন অথেন্টিকেশন টোকেন সিগনেচার কি</td>
+    </tr>
+    <tr>
+      <td><b>BULKSMSBD_API_KEY</b></td>
+      <td>your_bulksmsbd_api_key_here</td>
+      <td>BulkSMSBD এসএমএস গেটওয়ে এপিআই কি</td>
+    </tr>
+    <tr>
+      <td><b>BULKSMSBD_SENDER_ID</b></td>
+      <td>880961761XXXX</td>
+      <td>অনুমোদিত সেন্ডার আইডি / মাস্কিং আইডি</td>
+    </tr>
+    <tr>
+      <td><b>AI_API_KEY</b></td>
+      <td>sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx</td>
+      <td>OpenAI / Groq এআই মডেল এপিআই কি</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <div class="callout-title">📌 সফল সমাপ্তি</div>
+  এই ডকুমেন্ট অনুযায়ী কাজ শুরু করলে খুব সহজেই Kuakata Multimedia Finance অ্যাপ্লিকেশনের মতো আধুনিক, দৃষ্টিনন্দন ও শক্তিশালী একটি সম্পূর্ণ প্রোডাকশন ও ফাইন্যান্স ম্যানেজমেন্ট প্ল্যাটফর্ম তৈরি করা সম্ভব।
+</div>
+
+</body>
+</html>

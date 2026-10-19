@@ -24,6 +24,9 @@ dist-ssr
 server/.env
 server/uploads/*
 !server/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
 
 # Wrangler / Cloudflare
 .wrangler/
